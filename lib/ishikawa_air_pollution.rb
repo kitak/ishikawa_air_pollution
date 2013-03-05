@@ -1,3 +1,4 @@
+# coding: utf-8
 require "ishikawa_air_pollution/version"
 require "mechanize"
 
