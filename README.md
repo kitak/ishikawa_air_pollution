@@ -1,24 +1,27 @@
 # IshikawaAirPollution
 
-TODO: Write a gem description
+Fetch the observed value of air pollutants in Ishikawa pref.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'ishikawa_air_pollution'
+    gem 'ishikawa_air_pollution', :git => "https://github.com/kitak/ishikawa_air_pollution.git"
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
+<!--Or install it yourself as:-->
 
-    $ gem install ishikawa_air_pollution
+    <!--$ gem install ishikawa_air_pollution-->
 
 ## Usage
-
-TODO: Write usage instructions here
+```ruby
+require 'pp'
+client = IshikawaAirPollution.new
+pp client.pm25
+```
 
 ## Contributing
 
