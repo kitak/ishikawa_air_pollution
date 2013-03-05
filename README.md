@@ -19,9 +19,17 @@ And then execute:
 ```ruby
 require 'pp'
 client = IshikawaAirPollution.new
-pp client.pm25
-pp client.fetch('PM2.5')
-pp client.fetch('SO2')
+pp client.pm25 # 微小粒子状物質
+pp client.so2  # 二酸化硫黄
+pp client.no   # 一酸化窒素
+pp client.no2  # 二酸化窒素
+pp client.nox  # 窒素酸化物
+pp client.co   # 一酸化炭素
+pp client.ox   # 光化学オキシダント
+pp client.nmhc # 非メタン炭素水素
+pp client.ch4  # メタン
+pp client.thc  # 全炭素水素
+pp client.spm  # 浮遊粒子状物質
 ```
 
 ## Origin

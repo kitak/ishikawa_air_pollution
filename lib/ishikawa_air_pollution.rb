@@ -15,10 +15,19 @@ class IshikawaAirPollution
     }
   end
 
-  def pm25
-    fetch('PM2.5')
+  class << self
+    def define_pollutant(target)
+      puts target.downcase.gsub(/\./, '')
+      define_method(target.downcase.gsub(/\./, '')) do
+        fetch(target)
+      end
+    end
+  end
+  ["SO2", "NO", "NO2", "NOx", "CO", "Ox", "NMHC", "CH4", "THC", "SPM", "PM2.5"].each do |p|
+    define_pollutant(p) 
   end
 
+  private
   def fetch(target) 
     measure = {}
 
@@ -65,7 +74,7 @@ class IshikawaAirPollution
         unless row[target_key].empty?
           points << {
             'station_name' => row['測定局名'],
-            'value' => row[target_key],
+            'value' => row[target_key].to_f,
             'unit' => unit 
           }
         end
@@ -79,6 +88,7 @@ end
 if __FILE__ == $0
   api = IshikawaAirPollution.new
   require 'pp'
-  pp api.fetch('PM2.5')
-  pp api.fetch('SO2')
+  pp api.pm25
+  pp api.so2
+  pp api.no2
 end
