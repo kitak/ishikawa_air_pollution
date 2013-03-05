@@ -17,7 +17,6 @@ class IshikawaAirPollution
 
   class << self
     def define_pollutant(target)
-      puts target.downcase.gsub(/\./, '')
       define_method(target.downcase.gsub(/\./, '')) do
         fetch(target)
       end

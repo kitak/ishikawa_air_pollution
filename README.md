@@ -19,7 +19,6 @@ And then execute:
 ```ruby
 require 'pp'
 client = IshikawaAirPollution.new
-pp client.pm25 # 微小粒子状物質
 pp client.so2  # 二酸化硫黄
 pp client.no   # 一酸化窒素
 pp client.no2  # 二酸化窒素
@@ -30,6 +29,17 @@ pp client.nmhc # 非メタン炭素水素
 pp client.ch4  # メタン
 pp client.thc  # 全炭素水素
 pp client.spm  # 浮遊粒子状物質
+pp client.pm25 # 微小粒子状物質
+
+# 取得例(PM2.5)
+# {"date"=>"2013年03月05日",
+#  "time"=>"23時(22:00～23:00測定)",
+#  "points"=>
+#   [{"station_name"=>"松任", "value"=>13.0, "unit"=>"μg/m3"},
+#    {"station_name"=>"小松", "value"=>11.0, "unit"=>"μg/m3"},
+#    {"station_name"=>"七尾", "value"=>7.0, "unit"=>"μg/m3"},
+#    {"station_name"=>"野々市自排", "value"=>16.0, "unit"=>"μg/m3"}]}
+
 ```
 
 ## Origin
