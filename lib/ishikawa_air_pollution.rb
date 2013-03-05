@@ -71,7 +71,7 @@ class IshikawaAirPollution
 end
 
 if __FILE__ == $0
-  api = IshikawaAirPollutionAPI.new
+  api = IshikawaAirPollution.new
   require 'pp'
   pp api.pm25
 end
