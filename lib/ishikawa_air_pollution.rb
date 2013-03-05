@@ -16,7 +16,7 @@ class IshikawaAirPollution
   end
 
   def pm25
-    fetch('SO2')
+    fetch('PM2.5')
   end
 
   def fetch(target) 
