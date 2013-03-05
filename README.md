@@ -10,11 +10,10 @@ Add this line to your application's Gemfile:
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 <!--Or install it yourself as:-->
-
-    <!--$ gem install ishikawa_air_pollution-->
+<!--$ gem install ishikawa_air_pollution-->
 
 ## Usage
 ```ruby
