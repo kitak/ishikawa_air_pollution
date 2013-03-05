@@ -20,6 +20,8 @@ And then execute:
 require 'pp'
 client = IshikawaAirPollution.new
 pp client.pm25
+pp client.fetch('PM2.5')
+pp client.fetch('SO2')
 ```
 
 ## Origin
