@@ -15,6 +15,10 @@ class IshikawaAirPollution
   end
 
   def pm25
+    fetch('SO2')
+  end
+
+  def fetch(target) 
     measure = {}
 
     page = @agent.get('http://www.pref.ishikawa.jp/cgi-bin/taiki/top.pl')
@@ -24,11 +28,9 @@ class IshikawaAirPollution
     measure_time = nil
     page.search('#subhead div').each do |div|
       text = div.text
-      measure_date = text if /(\d{4})年(\d{2})月(\d{2})日/ =~ text
-      measure_time = text if /\d{2}:\d{2}/ =~ text
+      measure['date'] = text if /(\d{4})年(\d{2})月(\d{2})日/ =~ text
+      measure['time'] = text if /\d{2}:\d{2}/ =~ text
     end
-    measure['date'] = measure_date
-    measure['time'] = measure_time
 
     # データテーブルを探す
     points = []
@@ -38,29 +40,32 @@ class IshikawaAirPollution
       # テーブルヘッダをキーにする
       header = []
       target_key = nil
+      unit = nil
       trs = table.search('tr')
       thead = trs.shift
       thead.search('td').each do |td|
         key = td.text
-        target_key = key if /PM2\.5/ =~ key
+        if /#{Regexp.escape(target)}\((.+)\)/ =~ key
+          target_key = key 
+          unit = $1
+        end
         header << key
       end
 
       raise 'invalid form' unless target_key
 
       # データをなめる
-      rows = []
       trs.each do |tr|
         row = {}
         tr.search('td').each_with_index do |td, i|
           row[header[i]] = td.text.gsub(/\302\240/, ' ').strip
         end
-        rows << row
 
         unless row[target_key].empty?
           points << {
-            'name' => row['測定局名'],
-            'value' => row[target_key]
+            'station_name' => row['測定局名'],
+            'value' => row[target_key],
+            'unit' => unit 
           }
         end
       end
@@ -73,5 +78,6 @@ end
 if __FILE__ == $0
   api = IshikawaAirPollution.new
   require 'pp'
-  pp api.pm25
+  pp api.fetch('PM2.5')
+  pp api.fetch('SO2')
 end
