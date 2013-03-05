@@ -23,7 +23,7 @@ pp client.pm25
 ```
 
 ## Origin
-Thanks, sharapeco! (IshikawaAirPollutionAPI.rb)[https://gist.github.com/sharapeco/5089792]
+Thanks, sharapeco! [IshikawaAirPollutionAPI.rb](https://gist.github.com/sharapeco/5089792)
 
 ## Contributing
 
