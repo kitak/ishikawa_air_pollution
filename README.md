@@ -7,14 +7,15 @@
 
 Add this line to your application's Gemfile:
 
-    gem 'ishikawa_air_pollution', :git => "https://github.com/kitak/ishikawa_air_pollution.git"
+    gem 'ishikawa_air_pollution'
 
 And then execute:
 
     $ bundle install
 
-<!--Or install it yourself as:-->
-<!--$ gem install ishikawa_air_pollution-->
+Or install it yourself as:
+
+    $ gem install ishikawa_air_pollution
 
 ## Usage
 ```ruby
