@@ -1,5 +1,6 @@
 # coding: utf-8
 require "ishikawa_air_pollution/version"
+require "date"
 require "mechanize"
 
 class IshikawaAirPollution
@@ -13,83 +14,122 @@ class IshikawaAirPollution
       'Accept-encoding' => 'gzip, deflate',
       'Keep-alive' => nil
     }
+    parse_page(fetch_page)
   end
 
-  class << self
-    def define_pollutant(target)
-      define_method(target.downcase.gsub(/\./, '')) do
-        fetch(target)
-      end
-    end
+  def refetch!
+    parse_page(fetch_page)
   end
-  ["SO2", "NO", "NO2", "NOx", "CO", "Ox", "NMHC", "CH4", "THC", "SPM", "PM2.5"].each do |p|
-    define_pollutant(p) 
+
+  def location(name)
+    raise "unexist location" unless @location.has_key?(name)
+    @location[name].inject({}) { |buf, (key, val)|
+      buf[key] = val.merge(@material[key]) 
+      buf
+    }
+  end
+
+  def observation
+    {
+      "start" => @start_observation,
+      "end" => @start_observation + Rational(1, 24),
+      "period_sec" => 3600
+    }
   end
 
   private
-  def fetch(target) 
-    measure = Hash.new do |hash, key| 
-      hash[key.to_s]
+  def fetch_page
+    @agent.get('http://www.pref.ishikawa.jp/cgi-bin/taiki/top.pl')
+  end
+
+  def method_missing(name, *args)
+    if @material.has_key? name.to_s
+      locations = @location.inject([]) { |buf, (key, val)|
+        if val.has_key? name.to_s 
+          buf << {
+            "name" => key,
+            "value" => val[name.to_s]["value"]
+          } 
+        end
+        buf 
+      }
+      @material[name.to_s].merge({
+        "locations" => locations
+      })
+    else
+      super
     end
+  end
 
-    page = @agent.get('http://www.pref.ishikawa.jp/cgi-bin/taiki/top.pl')
+  def respond_to?(name, *args)
+    return true if @material.has_key? name.to_s
+    super
+  end
 
-    # 測定日時を取得
-    measure_date = nil
-    measure_time = nil
+  def parse_page(page) 
+    @start_observation = fetch_datetime(page)
+    @material = fetch_material_header(page)
+    @location = fetch_value_each_location(page)
+  rescue => e
+    raise "parse failed: #{e.message}"
+  end
+
+  def fetch_datetime(page)
+    y = 0; mon = 0; d = 0; h = 0; min = 0
     page.search('#subhead div').each do |div|
-      text = div.text
-      measure['date'] = text if /(\d{4})年(\d{2})月(\d{2})日/ =~ text
-      measure['time'] = text if /\d{2}:\d{2}/ =~ text
+      y, mon, d = $1.to_i, $2.to_i, $3.to_i if /(\d{4})年(\d{2})月(\d{2})日/ =~ div.text
+      h, min = $1.to_i, $2.to_i if /(\d{2})\:(\d{2})/ =~ div.text
     end
+    DateTime.new(y, mon, d, h, min, 0, 'GMT+09')
+  end
 
-    # データテーブルを探す
-    points = []
-    page.search('table').each do |table|
-      next unless table.search('td')[0].text == '測定局名'
-      
-      # テーブルヘッダをキーにする
-      header = []
-      target_key = nil
-      unit = nil
-      trs = table.search('tr')
-      thead = trs.shift
-      thead.search('td').each do |td|
-        key = td.text
-        if /#{Regexp.escape(target)}\((.+)\)/ =~ key
-          target_key = key 
-          unit = $1
-        end
-        header << key
-      end
-
-      raise 'invalid form' unless target_key
-
-      # データをなめる
-      trs.each do |tr|
-        row = {}
-        tr.search('td').each_with_index do |td, i|
-          row[header[i]] = td.text.gsub(/\302\240/, ' ').strip
-        end
-
-        unless row[target_key].empty?
-          points << {
-            'station_name' => row['測定局名'],
-            'value' => row[target_key].to_f,
-            'unit' => unit 
+  def fetch_material_header(page)
+    tables = page.search('table')
+    tables.detect { |table|
+      table.search('td')[0].text == '測定局名'
+    }.instance_eval {
+      trs = self.search('tr')
+      thead = trs[0]
+      material = thead.search('td').inject({}) do |buf, td|
+        if /((?:\p{Han}|\p{katakana}|\p{Hiragana})+)(.+)\((.+)\)/u =~ td.text
+          name_ja = $1; name = $2; unit = $3
+          buf[$2.downcase.gsub(/\./, '')] = {
+            "name_ja" => name_ja,
+            "name" => name,
+            "unit" => unit 
           }
         end
+        buf
       end
-    end
-    measure['points'] = points
-    measure
+    }
+  end
+
+  def fetch_value_each_location(page)
+    tables = page.search('table')
+    tables.select { |table|
+      table.search('td')[0].text == '測定局名'
+    }.map { |table|
+      trs = table.search('tr')
+      trs[1..-1].inject({}) { |buf, tr|
+        tds = tr.search('td')
+        loc_name = tds[0].text.gsub(/\302\240/, ' ').strip
+        buf[loc_name] = tds[1..-1].each_with_index.inject({}) do |buf2, (td, i)|
+          value = td.text.gsub(/\302\240/, ' ').strip
+          buf2[@material.keys[i]] = { "value" => value.to_f } unless value.empty? || value=="***"
+          buf2 
+        end
+        buf  
+      } 
+    }.instance_eval {
+      self[0].merge(self[1])
+    }
   end
 end
 
 if __FILE__ == $0
-  api = IshikawaAirPollution.new
+  client = IshikawaAirPollution.new
   require 'pp'
-  pp api.pm25
-  pp api.so2
-  pp api.no2
+  pp client.pm25
+  pp client.location("津幡")
+  pp client.observation
 end
