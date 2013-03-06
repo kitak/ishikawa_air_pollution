@@ -61,7 +61,7 @@ class IshikawaAirPollution
     end
   end
 
-  def respond_to?(name, *args)
+  def respond_to?(name)
     return true if @material.has_key? name.to_s
     super
   end
