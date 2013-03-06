@@ -28,7 +28,9 @@ class IshikawaAirPollution
 
   private
   def fetch(target) 
-    measure = {}
+    measure = Hash.new do |hash, key| 
+      hash[key.to_s]
+    end
 
     page = @agent.get('http://www.pref.ishikawa.jp/cgi-bin/taiki/top.pl')
 
