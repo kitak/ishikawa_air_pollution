@@ -1,6 +1,6 @@
 # IshikawaAirPollution
 
-Fetch the observed value of air pollutants in Ishikawa pref.  
+石川県の大気汚染物質の測定値を取得するライブラリです．
 [石川県の大気環境の状況](http://www.pref.ishikawa.jp/cgi-bin/taiki/top.pl)からデータを取得しています.
 
 ## Installation
