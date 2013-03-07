@@ -23,6 +23,19 @@ require 'ishikawa_air_pollution'
 
 client = IshikawaAirPollution.new
 
+require 'pp'
+
+# PM2.5の測定データを取得
+pp client.pm25
+# 取得例
+# {"name_ja"=>"微小粒子状物質",
+#  "name"=>"PM2.5",
+#  "unit"=>"μg/m3",
+#  "locations"=>
+#   [{"name"=>"小松", "value"=>19.0},
+#    {"name"=>"七尾", "value"=>22.0},
+#    {"name"=>"野々市自排", "value"=>23.0}]}
+
 # 取得できる物質一覧
 # so2  二酸化硫黄
 # no   一酸化窒素
@@ -36,23 +49,42 @@ client = IshikawaAirPollution.new
 # spm  浮遊粒子状物質
 # pm25 微小粒子状物質
 
-pp client.pm25
-# PM2.5の測定データを取得
-# {"name_ja"=>"微小粒子状物質",
-#  "name"=>"PM2.5",
-#  "unit"=>"μg/m3",
-#  "locations"=>
-#   [{"name"=>"小松", "value"=>19.0},
-#    {"name"=>"七尾", "value"=>22.0},
-#    {"name"=>"野々市自排", "value"=>23.0}]}
-
+# 津幡の測定局の測定データを取得
 pp client.location("津幡")
-# 津幡の測定局で測定したデータ
+# 取得例
 # {"no"=>{"value"=>0.001, "name_ja"=>"一酸化窒素", "name"=>"NO", "unit"=>"ppm"},
 #  "no2"=>{"value"=>0.006, "name_ja"=>"二酸化窒素", "name"=>"NO2", "unit"=>"ppm"},
 #  "nox"=>{"value"=>0.007, "name_ja"=>"窒素酸化物", "name"=>"NOx", "unit"=>"ppm"},
 #  "ox"=>{"value"=>0.06, "name_ja"=>"光化学オキシダント", "name"=>"Ox", "unit"=>"ppm"},
 #  "spm"=>{"value"=>0.025, "name_ja"=>"浮遊粒子状物質", "name"=>"SPM", "unit"=>"mg/m3"}}
+
+# 測定局一覧
+# 三馬
+# 西南部
+# 小立野
+# 中央
+# 駅西
+# 西部
+# 北部
+# 松任
+# 山島
+# 美川
+# 津幡
+# 内灘
+# 小松
+# 根上
+# 大聖寺
+# 七尾
+# 石崎
+# 大田
+# 田鶴浜
+# 能登島
+# 羽咋
+# 鹿島
+# 野々市自排
+# 武蔵自排
+# 片町自排
+# 藤江自排
 
 pp client.observation
 # 各測定局の測定開始時間．元サイトは一時間毎に更新される
