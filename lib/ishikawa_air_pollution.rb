@@ -23,10 +23,10 @@ class IshikawaAirPollution
 
   def location(name)
     raise "unexist location" unless @location.has_key?(name)
-    @location[name].inject({}) { |buf, (key, val)|
+    @location[name].inject({}) do |buf, (key, val)|
       buf[key] = val.merge(@material[key]) 
       buf
-    }
+    end
   end
 
   def observation
@@ -44,7 +44,7 @@ class IshikawaAirPollution
 
   def method_missing(name, *args)
     if @material.has_key? name.to_s
-      locations = @location.inject([]) { |buf, (key, val)|
+      locations = @location.inject([]) do |buf, (key, val)|
         if val.has_key? name.to_s 
           buf << {
             "name" => key,
@@ -52,7 +52,7 @@ class IshikawaAirPollution
           } 
         end
         buf 
-      }
+      end 
       @material[name.to_s].merge({
         "locations" => locations
       })
@@ -88,9 +88,7 @@ class IshikawaAirPollution
     tables.detect { |table|
       table.search('td')[0].text == '測定局名'
     }.instance_eval {
-      trs = self.search('tr')
-      thead = trs[0]
-      material = thead.search('td').inject({}) do |buf, td|
+      self.search('tr')[0].search('td').inject({}) do |buf, td|
         if /((?:\p{Han}|\p{katakana}|\p{Hiragana})+)(.+)\((.+)\)/u =~ td.text
           name_ja = $1; name = $2; unit = $3
           buf[$2.downcase.gsub(/\./, '')] = {
